@@ -1,9 +1,6 @@
 package ru.praktikum.scooter.pages;
 
-import org.openqa.selenium.By;
-import org.openqa.selenium.NoSuchElementException;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
@@ -11,33 +8,33 @@ import java.util.List;
 
 public class OrderPage {
 
-    private WebDriver driver;
-    private WebDriverWait wait;
+    private final WebDriver driver;
+    private final WebDriverWait wait;
 
     // Локаторы для полей ввода
-    private By firstNameField = By.cssSelector("input[placeholder='* Имя']");  // Локатор для поля ввода имени
-    private By lastNameField = By.cssSelector("input[placeholder='* Фамилия']");  // Локатор для поля ввода фамилии
-    private By addressField = By.cssSelector("input[placeholder='* Адрес: куда привезти заказ']");  // Локатор для поля ввода адреса
-    private By phoneField = By.cssSelector("input[placeholder='* Телефон: на него позвонит курьер']");  // Локатор для поля ввода телефона
+    private final By  firstNameField = By.cssSelector("input[placeholder='* Имя']");  // Локатор для поля ввода имени
+    private final  By lastNameField = By.cssSelector("input[placeholder='* Фамилия']");  // Локатор для поля ввода фамилии
+    private final By addressField = By.cssSelector("input[placeholder='* Адрес: куда привезти заказ']");  // Локатор для поля ввода адреса
+    private final By phoneField = By.cssSelector("input[placeholder='* Телефон: на него позвонит курьер']");  // Локатор для поля ввода телефона
 
     // Локаторы для кнопок
-    private By orderButton = By.cssSelector(".Button_Button__ra12g");  // Локатор для кнопки отправки заказа
-    private By nextButton = By.cssSelector(".Button_Middle__1CSJM");  // Локатор для кнопки "Далее"
-    private By cookieBannerCloseButton = By.cssSelector(".App_CookieButton__3cvqF");  // Локатор для кнопки закрытия баннера cookie
-    private By yesButton = By.cssSelector(".Button_Middle__1CSJM");
+    private final By orderButtonTop = By.cssSelector(".Button_Button__ra12g");  // Локатор для кнопки отправки заказа
+    private final By orderButtonBottom = By.cssSelector(".Button_Middle__1CSJM"); // Нижняя кнопка
+    private final By nextButton = By.cssSelector(".Button_Middle__1CSJM");  // Локатор для кнопки "Далее"
+    private final By cookieBannerCloseButton = By.cssSelector(".App_CookieButton__3cvqF");  // Локатор для кнопки закрытия баннера cookie
+    private final By yesButton = By.cssSelector(".Button_Middle__1CSJM");
     // Локаторы для других элементов формы
-    private By rentalPeriodArrow = By.xpath("//div[contains(@class, 'Dropdown-arrow-wrapper')]//span");
-    private By commentInput = By.cssSelector("input[placeholder='Комментарий для курьера']");  // Локатор для поля ввода комментария
+    private final By rentalPeriodArrow = By.xpath("//div[contains(@class, 'Dropdown-arrow-wrapper')]//span");
+    private final By commentInput = By.cssSelector("input[placeholder='Комментарий для курьера']");  // Локатор для поля ввода комментария
     // Универсальный локатор для чекбокса с параметризированным id
     private By colorCheckbox(String colorId) {
         return By.id(colorId);  // Формируем локатор по переданному id
     }
 
-    private By modalWindow = By.cssSelector(".Order_Modal__YZ-d3");  // Локатор для модального окна с подтверждением заказа
-    private By orderNumber = By.cssSelector(".Order_Text__2broi");  // Локатор для текста с номером заказа
-    private By subwayInputField = By.cssSelector("input.select-search__input");  // Локатор для поля ввода станции метро
-    private By subwayOption = By.cssSelector(".select-search__option");  // Локатор для вариантов метро в выпадающем списке
-    private By dateInputField = By.cssSelector("input[placeholder='* Когда привезти самокат']");  // Локатор для поля даты
+    private final By orderNumber = By.cssSelector(".Order_Text__2broi");  // Локатор для текста с номером заказа
+    private final By subwayInputField = By.cssSelector("input.select-search__input");  // Локатор для поля ввода станции метро
+    private final By subwayOption = By.cssSelector(".select-search__option");  // Локатор для вариантов метро в выпадающем списке
+    private final By dateInputField = By.cssSelector("input[placeholder='* Когда привезти самокат']");  // Локатор для поля даты
 
     public OrderPage(WebDriver driver) {
         this.driver = driver;
@@ -57,10 +54,30 @@ public class OrderPage {
 
     // Метод для клика по кнопке "Заказать"
     public void clickOrderButton() {
-        WebElement button = driver.findElement(orderButton);
+        WebElement button = driver.findElement(orderButtonTop);
         button.click();
     }
+    // Получаем кнопку заказа, которая находится внизу страницы
+    public WebElement getOrderButtonBottom() {
+        return driver.findElement(orderButtonBottom);
+    }
+    // Метод для прокрутки страницы до элемента
+    public void scrollToElement(WebElement element) {
+        ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", element);
+    }
 
+
+    // Прокрутка страницы до второй кнопки
+    public void scrollToOrderButton() {
+        WebElement orderButtonBottom = getOrderButtonBottom();
+        ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", orderButtonBottom);
+    }
+    // Метод для клика по нижней кнопке "Заказать"
+    public void clickOrderButtonBottom() {
+        WebElement button = driver.findElement(orderButtonBottom);
+        scrollToElement(button);  // Прокрутка страницы до кнопки
+        button.click();
+    }
     // Метод для клика по кнопке "Далее"
     public void clickNextButton() {
         WebElement button = driver.findElement(nextButton);
@@ -152,14 +169,8 @@ public class OrderPage {
 
     // Отправка формы
     public void submitOrder() {
-        WebElement submitBtn = driver.findElement(orderButton);
+        WebElement submitBtn = driver.findElement(orderButtonTop);
         submitBtn.click();
-    }
-
-    // Проверка видимости модального окна подтверждения
-    public boolean isModalVisible() {
-        WebElement modal = driver.findElement(modalWindow);
-        return modal.isDisplayed();
     }
 
     // Подтверждение заказа в модальном окне
@@ -167,11 +178,6 @@ public class OrderPage {
         WebElement confirmBtn = driver.findElement(yesButton);
         confirmBtn.click();
 
-    }
-
-    // Проверка видимости окна с номером заказа
-    public boolean isOrderModalVisible() {
-        return driver.findElement(orderNumber).isDisplayed();
     }
 
     // Получение номера заказа

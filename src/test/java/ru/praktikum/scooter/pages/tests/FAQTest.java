@@ -4,10 +4,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
 import ru.praktikum.scooter.pages.MainPage;
+import ru.praktikum.scooter.utils.BrowserFactory;
 
 import static org.junit.Assert.*;
 
@@ -17,27 +15,26 @@ public class FAQTest {
 
     @Before
     public void setUp() {
-        driver = new ChromeDriver(); // Инициализация драйвера
-        mainPage = new MainPage(driver); // Инициализация страницы
-        driver.get("https://qa-scooter.praktikum-services.ru/"); // Переход на сайт
+        // Используем BrowserFactory для создания драйвера
+        driver = BrowserFactory.createDriver("chrome"); // Можно менять на "firefox"
+        mainPage = new MainPage(driver);
+        driver.get(MainPage.URL); // Используем константу URL
     }
 
     @Test
     public void testFaqDropdownOpens() {
-        // Явное ожидание, что стрелочка будет доступна для клика
-        WebDriverWait wait = new WebDriverWait(driver, 10);  // Используем число вместо Duration
-        wait.until(ExpectedConditions.elementToBeClickable(mainPage.getFaqDropdownArrow(0)));
+        for (int i = 0; i < mainPage.getFaqCount(); i++) {
+            // Кликаем по каждому вопросу
+            mainPage.clickOnDropdownArrow(i);
 
-        // Клик по стрелочке
-        mainPage.clickOnDropdownArrow(0);
+            // Проверяем видимость текста ответа
+            assertTrue("FAQ должен быть видимым", mainPage.isFaqVisible(i));
 
-        // Проверка видимости FAQ
-        assertTrue("FAQ должен быть видимым", mainPage.isFaqVisible(0));
-
-        // Получение текста ответа
-        String faqText = mainPage.getFaqText(0);
-        assertNotNull("Текст ответа не должен быть null", faqText);
-        assertFalse("Текст ответа не должен быть пустым", faqText.isEmpty());
+            // Проверяем текст ответа
+            String faqText = mainPage.getFaqText(i);
+            assertNotNull("Текст ответа не должен быть null", faqText);
+            assertFalse("Текст ответа не должен быть пустым", faqText.isEmpty());
+        }
     }
 
     @After
@@ -47,3 +44,5 @@ public class FAQTest {
         }
     }
 }
+
+
