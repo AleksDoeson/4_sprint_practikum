@@ -22,57 +22,44 @@ public class MainPage {
 
     public MainPage(WebDriver driver) {
         this.driver = driver;
-        this.wait = new WebDriverWait(driver, 10); // Инициализация WebDriverWait
+        this.wait = new WebDriverWait(driver, 10);
     }
 
-    // Метод клика по стрелочке для каждого вопроса с явным ожиданием
+    // Метод для клика по стрелочке конкретного FAQ-вопроса
     public void clickOnDropdownArrow(int index) {
         List<WebElement> arrows = driver.findElements(faqDropdownArrows);
         if (index < 0 || index >= arrows.size()) {
             throw new IllegalArgumentException("Некорректный индекс: " + index);
         }
-
-        // Ожидание, что стрелочка будет доступна для клика
-        wait.until(ExpectedConditions.elementToBeClickable(arrows.get(index)));
-
-        // Прокрутка до элемента, если он не виден
-        ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", arrows.get(index));
-
-        // Кликаем по элементу
-        arrows.get(index).click();
+        WebElement arrow = arrows.get(index);
+        ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", arrow);
+        wait.until(ExpectedConditions.elementToBeClickable(arrow));
+        arrow.click();
     }
 
-    // Метод для получения текста ответа на вопрос
+    // Метод для получения текста ответа по индексу
     public String getFaqText(int index) {
         List<WebElement> texts = driver.findElements(faqText);
         if (index < 0 || index >= texts.size()) {
             throw new IllegalArgumentException("Некорректный индекс: " + index);
         }
-
-        // Ожидаем, что текст будет видимым
-        wait.until(ExpectedConditions.visibilityOf(texts.get(index)));
-
-        return texts.get(index).getText().trim();
+        WebElement text = texts.get(index);
+        wait.until(ExpectedConditions.visibilityOf(text));
+        return text.getText().trim();
     }
 
-    // Метод для проверки видимости ответа на вопрос
+    // Метод для проверки, отображается ли текст ответа
     public boolean isFaqVisible(int index) {
         List<WebElement> texts = driver.findElements(faqText);
         if (index < 0 || index >= texts.size()) {
             return false;
         }
-
-        // Ожидаем, что текст будет видимым
-        wait.until(ExpectedConditions.visibilityOf(texts.get(index)));
-
-        return texts.get(index).isDisplayed();
-    }
-
-    // Метод для получения количества FAQ
-    public int getFaqCount() {
-        return driver.findElements(faqDropdownArrows).size();
+        WebElement text = texts.get(index);
+        wait.until(ExpectedConditions.visibilityOf(text));
+        return text.isDisplayed();
     }
 }
+
 
 
 
